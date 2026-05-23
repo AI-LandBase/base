@@ -14,11 +14,16 @@
 ## 開発フロー
 
 ```
-issue-create                            Issue 起票 (工数見積込み)
+[ アイデア / 課題 ]                     1-2 文の発想から
+   ↓
+grill-with-docs                         設計判断 / 新概念 / 構造影響
+                                        のいずれかがあれば必須
+                                        CONTEXT/ARCHITECTURE/ADR を inline 更新
+                                        → trivial fix なら skip 可
+   ↓
+issue-create                            grill 結果を Issue テンプレに転記
    ↓
 [ branch切る ]                          feature/<#>-<summary>
-   ↓
-grill-with-docs (任意)                  設計を詰める / CONTEXT.md / ADR 更新
    ↓
 [ 実装 ]
    ├── tdd                              テスト駆動で実装
