@@ -38,9 +38,9 @@ cd my-new-project
 
 ## ドキュメント
 
-- [CLAUDE.md](./CLAUDE.md)
-- [CONTRIBUTING.md](./CONTRIBUTING.md)
-- [CONTEXT.md](./CONTEXT.md)
+- [CLAUDE.md](./CLAUDE.md) — AI agent 向け指針 (規律 / skill 索引 / フロー / ドキュメント構造)
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — 規約・禁止事項
+- [CONTEXT.md](./CONTEXT.md) — 用語集
 
 ## ライセンス
 

@@ -44,6 +44,36 @@ finishing-branch                        test verify → PR → squash merge → 
 | `commit` | 「コミットして」「commit」 |
 | `finishing-branch` | 「PR 出して」「マージ準備」「ブランチ閉じて」 |
 
+## ドキュメント構造
+
+このリポ (および Base 派生プロジェクト) では、案件のドキュメントを2層で管理する。
+
+### Tier 1 (常時メンテ — 全プロジェクトで意識)
+
+| Doc | 役割 |
+|-----|------|
+| `ARCHITECTURE.md` | システム構造・モジュール関係・データフロー |
+| `CONTEXT.md` | ドメイン用語集 |
+| `docs/adr/` | 重要決定の記録 (lazy、3条件 hard-to-reverse / surprising / real-trade-off を満たすとき) |
+
+### Tier 2 (条件付き — AI が signal で能動提案・lazy 作成)
+
+| Doc | 検出 signal | 適用案件 |
+|-----|------------|---------|
+| `DESIGN.md` | UI / コンポーネント / レイアウト / visual taste の話題 | UI を持つ案件 |
+| `BRAND.md` | ブランド / トーン / コンテンツ / コピーライティング の話題 | マーケ / コンテンツ案件 |
+| `DEPLOYMENT.md` | デプロイ / リリース / 環境変数 / インフラ の話題 | デプロイがトリビアでない案件 |
+| `DATA.md` | データソース / スキーマ / ETL / 集計 の話題 | データ案件 |
+| `SECURITY.md` | 認証 / 機密 / 脆弱性 / コンプライアンス の話題 | 機密データ扱う案件 |
+| `API.md` | API endpoint / 公開契約 / OpenAPI の話題 | API 公開案件 |
+
+### 命名規則とlazy 作成
+
+- **配置**: 大文字 + `.md` で **リポ root** に置く (matklad ARCHITECTURE.md convention に揃える)。案件特化 doc が肥大化したら `docs/` 配下への移動を検討
+- **lazy 作成**: 該当 signal を検出するまで作らない。空のplaceholder は置かない
+- **更新**: 関連話題が出るたび inline で更新する (まとめて後でやらない)
+- grill-with-docs / improve-architecture は ARCHITECTURE.md と CONTEXT.md を自動更新する
+
 ## AI agent 行動規範
 
 - コミットメッセージ・PR 本文に AI 生成の旨を記載しない (`🤖 Generated with...`、`Co-Authored-By: Claude...` 等は付与しない)

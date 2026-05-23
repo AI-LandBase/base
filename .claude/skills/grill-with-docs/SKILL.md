@@ -75,6 +75,12 @@ When a term is resolved, update `CONTEXT.md` right there. Don't batch these up â
 
 `CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
 
+### Update ARCHITECTURE.md inline
+
+When a structural decision is made (new module, seam, component, data flow change, lifecycle adjustment), update `ARCHITECTURE.md` right there. Like `CONTEXT.md`, it is lazily created at the repo root if it doesn't exist, and updated inline as decisions crystallize â€” not batched.
+
+`ARCHITECTURE.md` describes **shape and relationships** (components, data flow, extension points). It is NOT a spec, ADR, or implementation plan. If the project's documentation tier conventions list other case-specific docs (e.g., `DESIGN.md`, `BRAND.md`), propose creating those lazily when the relevant signal surfaces in the discussion.
+
 ### Offer ADRs sparingly
 
 Only offer to create an ADR when all three are true:
