@@ -34,10 +34,14 @@ cd my-new-project
 - Docker / CI / デプロイ設定
 - 言語固有の linter / formatter 設定
 
-これらは下流の `*_boilerplate` または各プロジェクトで個別に追加する。
+これらは各プロジェクトで個別に追加する。
 
 ## ドキュメント
 
 - [CLAUDE.md](./CLAUDE.md)
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [CONTEXT.md](./CONTEXT.md)
+
+## ライセンス
+
+MIT — [LICENSE](./LICENSE) 参照

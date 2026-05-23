@@ -3,249 +3,224 @@ name: finishing-branch
 description: Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup. Also activate when user says 「PR 出して」「マージ準備」「ブランチ閉じて」「実装終わったので統合」「squash merge」.
 ---
 
-# Finishing a Development Branch
+# finishing-branch
 
-## Overview
+実装完了後の統合フェーズを構造化する。test verify → 状態確認 → 選択肢提示 → 実行 → cleanup。
 
-Guide completion of development work by presenting clear options and handling chosen workflow.
+**Core principle:** Verify tests → Detect PR state → Present options → Execute → Clean up.
 
-**Core principle:** Verify tests → Detect environment → Present options → Execute choice → Clean up.
+## Step 1: Verify Tests
 
-**Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
-
-## The Process
-
-### Step 1: Verify Tests
-
-**Before presenting options, verify tests pass:**
+オプション提示前に必ずテストを通す。
 
 ```bash
-# Run project's test suite
-npm test / cargo test / pytest / go test ./...
+# プロジェクトのテストスイートを実行 (該当するもの)
+npm test / pnpm test / pytest / cargo test / go test ./... / bundle exec rspec
 ```
 
-**If tests fail:**
+**失敗していたら停止:**
+
 ```
-Tests failing (<N> failures). Must fix before completing:
+Tests failing (<N> failures). 修正してから再開してください。
 
-[Show failures]
-
-Cannot proceed with merge/PR until tests pass.
+[失敗内容]
 ```
 
-Stop. Don't proceed to Step 2.
+**通ったら Step 2 へ。**
 
-**If tests pass:** Continue to Step 2.
-
-### Step 2: Detect Environment
-
-**Determine workspace state before presenting options:**
+## Step 2: Detect Base Branch and PR State
 
 ```bash
-GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd -P)
-GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" 2>/dev/null && pwd -P)
+# Base branch を判定
+BASE=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo main)
+
+# 現在のブランチ
+CURRENT=$(git branch --show-current)
+
+# このブランチに対する開いている PR があるか
+gh pr view --json state,number,reviewDecision 2>/dev/null
 ```
 
-This determines which menu to show and how cleanup works:
+PR 状態に応じて Step 3 のメニューでデフォルト推奨が変わる:
+- **PR 無し** → Option 1 (PR作成) を推奨
+- **PR 存在 + APPROVED** → Option 2 (squash merge) を推奨
+- **PR 存在 + 未承認/CHANGES_REQUESTED** → ユーザーにフィードバック対応を促す
 
-| State | Menu | Cleanup |
-|-------|------|---------|
-| `GIT_DIR == GIT_COMMON` (normal repo) | Standard 4 options | No worktree to clean up |
-| `GIT_DIR != GIT_COMMON`, named branch | Standard 4 options | Provenance-based (see Step 6) |
-| `GIT_DIR != GIT_COMMON`, detached HEAD | Reduced 3 options (no merge) | No cleanup (externally managed) |
+## Step 3: Present Options
 
-### Step 3: Determine Base Branch
+```
+実装完了。何をしますか?
+
+1. Push して Pull Request を作成   (PR 未作成のとき)
+2. 承認済み PR をマージして branch 削除  (PR が approve されたとき)
+3. このブランチを保持して後で対応
+4. この作業を破棄
+
+選んでください (1-4):
+```
+
+## Step 4: Execute Choice
+
+### Option 1: Push and Create PR
 
 ```bash
-# Try common base branches
-git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
+# branch を push
+git push -u origin "$CURRENT"
+
+# PR テンプレート (.github/PULL_REQUEST_TEMPLATE.md) を読み込んで埋める
+TEMPLATE=$(cat .github/PULL_REQUEST_TEMPLATE.md 2>/dev/null)
 ```
 
-Or ask: "This branch split from main - is that correct?"
+PR 本文は **`.github/PULL_REQUEST_TEMPLATE.md` の構造を保ったまま** 各セクションを埋める:
 
-### Step 4: Present Options
+- 概要
+- 変更内容
+- テスト方法 (実行コマンド)
+- チェックリスト (Conventional Commits 準拠、AI footer 無し、等)
+- Closes #<Issue 番号>  ← branch 名から抽出 (`feature/42-...` → `Closes #42`)
 
-**Normal repo and named-branch worktree — present exactly these 4 options:**
-
-```
-Implementation complete. What would you like to do?
-
-1. Merge back to <base-branch> locally
-2. Push and create a Pull Request
-3. Keep the branch as-is (I'll handle it later)
-4. Discard this work
-
-Which option?
-```
-
-**Detached HEAD — present exactly these 3 options:**
-
-```
-Implementation complete. You're on a detached HEAD (externally managed workspace).
-
-1. Push as new branch and create a Pull Request
-2. Keep as-is (I'll handle it later)
-3. Discard this work
-
-Which option?
-```
-
-**Don't add explanation** - keep options concise.
-
-### Step 5: Execute Choice
-
-#### Option 1: Merge Locally
+**PR title は squash merge 時にそのまま main の commit subject になる** ため、`(issue#<N>)` を必ず含める (CONTRIBUTING.md のコミット規約と一致させる):
 
 ```bash
-# Get main repo root for CWD safety
-MAIN_ROOT=$(git -C "$(git rev-parse --git-common-dir)/.." rev-parse --show-toplevel)
-cd "$MAIN_ROOT"
+gh pr create \
+  --title "<type>(<scope>): <subject> (issue#<N>)" \
+  --body "$(cat <<'EOF'
+## 概要
 
-# Merge first — verify success before removing anything
-git checkout <base-branch>
-git pull
-git merge <feature-branch>
+<1-2文>
 
-# Verify tests on merged result
-<test command>
+## 変更内容
 
-# Only after merge succeeds: cleanup worktree (Step 6), then delete branch
-```
+- <主要な変更点1>
+- <主要な変更点2>
 
-Then: Cleanup worktree (Step 6), then delete branch:
+## テスト方法
 
-```bash
-git branch -d <feature-branch>
-```
+\`\`\`bash
+<実行コマンド>
+\`\`\`
 
-#### Option 2: Push and Create PR
+## チェックリスト
 
-```bash
-# Push branch
-git push -u origin <feature-branch>
+- [x] 受け入れ基準 (Must Have) を満たす
+- [x] テスト追加・更新
+- [x] ドキュメント更新 (必要なら)
+- [x] Conventional Commits 準拠
+- [x] AI 生成メッセージを含まない
 
-# Create PR
-gh pr create --title "<title>" --body "$(cat <<'EOF'
-## Summary
-<2-3 bullets of what changed>
-
-## Test Plan
-- [ ] <verification steps>
+Closes #<N>
 EOF
 )"
 ```
 
-**Do NOT clean up worktree** — user needs it alive to iterate on PR feedback.
+完了後、PR URL をユーザーに渡す。
 
-#### Option 3: Keep As-Is
+### Option 2: Merge Approved PR (squash + delete branch)
 
-Report: "Keeping branch <name>. Worktree preserved at <path>."
-
-**Don't cleanup worktree.**
-
-#### Option 4: Discard
-
-**Confirm first:**
-```
-This will permanently delete:
-- Branch <name>
-- All commits: <commit-list>
-- Worktree at <path>
-
-Type 'discard' to confirm.
-```
-
-Wait for exact confirmation.
-
-If confirmed:
-```bash
-MAIN_ROOT=$(git -C "$(git rev-parse --git-common-dir)/.." rev-parse --show-toplevel)
-cd "$MAIN_ROOT"
-```
-
-Then: Cleanup worktree (Step 6), then force-delete branch:
-```bash
-git branch -D <feature-branch>
-```
-
-### Step 6: Cleanup Workspace
-
-**Only runs for Options 1 and 4.** Options 2 and 3 always preserve the worktree.
+事前に PR が approve されているか確認:
 
 ```bash
-GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd -P)
-GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" 2>/dev/null && pwd -P)
-WORKTREE_PATH=$(git rev-parse --show-toplevel)
+gh pr view --json state,reviewDecision,mergeable
 ```
 
-**If `GIT_DIR == GIT_COMMON`:** Normal repo, no worktree to clean up. Done.
+`state=OPEN`、`reviewDecision=APPROVED`、`mergeable=MERGEABLE` でなければ:
 
-**If worktree path is under `.worktrees/`, `worktrees/`, or `~/.config/superpowers/worktrees/`:** Superpowers created this worktree — we own cleanup.
+```
+PR がまだマージ可能な状態ではありません:
+- review: <reviewDecision>
+- mergeable: <mergeable>
+
+レビューフィードバック対応 / コンフリクト解消が必要です。
+```
+
+条件を満たしていれば実行:
 
 ```bash
-MAIN_ROOT=$(git -C "$(git rev-parse --git-common-dir)/.." rev-parse --show-toplevel)
-cd "$MAIN_ROOT"
-git worktree remove "$WORKTREE_PATH"
-git worktree prune  # Self-healing: clean up any stale registrations
+gh pr merge --squash --delete-branch
 ```
 
-**Otherwise:** The host environment (harness) owns this workspace. Do NOT remove it. If your platform provides a workspace-exit tool, use it. Otherwise, leave the workspace in place.
+完了後、ローカルもクリーンアップ:
+
+```bash
+git checkout "$BASE"
+git pull origin "$BASE"
+git branch -d "$CURRENT" 2>/dev/null || true  # 既にdeleted-branch扱いなら無視
+```
+
+### Option 3: Keep As-Is
+
+```
+ブランチ <name> を保持します。後で finishing-branch を再実行すると再開できます。
+```
+
+何もしない。
+
+### Option 4: Discard
+
+**型一致の確認を取る:**
+
+```
+以下を **完全に削除** します:
+- ブランチ <name>
+- 全コミット: <commit-list>
+
+`discard` と入力して確定してください:
+```
+
+ユーザーが exact "discard" を入力したら:
+
+```bash
+git checkout "$BASE"
+git branch -D "$CURRENT"
+
+# 既に push 済みなら remote の branch も削除
+git push origin --delete "$CURRENT" 2>/dev/null || true
+```
+
+それ以外の入力なら中止。
 
 ## Quick Reference
 
-| Option | Merge | Push | Keep Worktree | Cleanup Branch |
-|--------|-------|------|---------------|----------------|
-| 1. Merge locally | yes | - | - | yes |
-| 2. Create PR | - | yes | yes | - |
-| 3. Keep as-is | - | - | yes | - |
-| 4. Discard | - | - | - | yes (force) |
+| Option | Push | PR | Merge | Branch delete |
+|--------|------|----|----|--------------|
+| 1. PR作成 | yes | create | - | - |
+| 2. PR マージ | - | merge | squash | yes (remote + local) |
+| 3. 保持 | - | - | - | - |
+| 4. 破棄 | - | - | - | yes (force, remote + local) |
 
 ## Common Mistakes
 
-**Skipping test verification**
-- **Problem:** Merge broken code, create failing PR
-- **Fix:** Always verify tests before offering options
+**テスト未確認で進める**
+- 問題: 壊れたコードを PR にする / 壊れた状態でマージ
+- 対処: Step 1 で必ず通す。失敗なら停止
 
-**Open-ended questions**
-- **Problem:** "What should I do next?" is ambiguous
-- **Fix:** Present exactly 4 structured options (or 3 for detached HEAD)
+**承認前にマージ**
+- 問題: レビュー無しでmainに混入
+- 対処: Option 2 では `reviewDecision=APPROVED` を確認
 
-**Cleaning up worktree for Option 2**
-- **Problem:** Remove worktree user needs for PR iteration
-- **Fix:** Only cleanup for Options 1 and 4
+**`--squash` 忘れ**
+- 問題: PR のコミットが全部main履歴に残り「1 PR = 1 commit」原則崩壊
+- 対処: 必ず `gh pr merge --squash --delete-branch`
 
-**Deleting branch before removing worktree**
-- **Problem:** `git branch -d` fails because worktree still references the branch
-- **Fix:** Merge first, remove worktree, then delete branch
+**`--delete-branch` 忘れ**
+- 問題: マージ済 branch が remote / local に残る
+- 対処: `--delete-branch` フラグと、local の `git branch -d` を併用
 
-**Running git worktree remove from inside the worktree**
-- **Problem:** Command fails silently when CWD is inside the worktree being removed
-- **Fix:** Always `cd` to main repo root before `git worktree remove`
-
-**Cleaning up harness-owned worktrees**
-- **Problem:** Removing a worktree the harness created causes phantom state
-- **Fix:** Only clean up worktrees under `.worktrees/`, `worktrees/`, or `~/.config/superpowers/worktrees/`
-
-**No confirmation for discard**
-- **Problem:** Accidentally delete work
-- **Fix:** Require typed "discard" confirmation
+**破棄前の確認を省く**
+- 問題: 誤って作業を消す
+- 対処: Option 4 では `discard` の type 確認を必須にする
 
 ## Red Flags
 
 **Never:**
-- Proceed with failing tests
-- Merge without verifying tests on result
-- Delete work without confirmation
-- Force-push without explicit request
-- Remove a worktree before confirming merge success
-- Clean up worktrees you didn't create (provenance check)
-- Run `git worktree remove` from inside the worktree
+- 失敗テストのまま進める
+- 承認なしでマージ
+- `--squash` 無しで merge
+- 確認なしで破棄
+- `git push --force` を勝手に実行
 
 **Always:**
-- Verify tests before offering options
-- Detect environment before presenting menu
-- Present exactly 4 options (or 3 for detached HEAD)
-- Get typed confirmation for Option 4
-- Clean up worktree for Options 1 & 4 only
-- `cd` to main repo root before worktree removal
-- Run `git worktree prune` after removal
+- Step 1 でテスト通過確認
+- Step 2 で PR 状態確認
+- Option 2 では squash + delete-branch
+- Option 4 では type 確認
