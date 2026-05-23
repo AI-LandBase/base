@@ -26,7 +26,6 @@ cd my-new-project
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR テンプレ (squash 前提) |
 | `CLAUDE.md` | AI agent 向け指針 |
 | `CONTRIBUTING.md` | 規約・禁止事項 (人間向け) |
-| `CONTEXT.md` | 用語集 |
 
 ## 入っていないもの
 
@@ -40,7 +39,6 @@ cd my-new-project
 
 - [CLAUDE.md](./CLAUDE.md) — AI agent 向け指針 (規律 / skill 索引 / フロー / ドキュメント構造)
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — 規約・禁止事項
-- [CONTEXT.md](./CONTEXT.md) — 用語集
 
 ## ライセンス
 

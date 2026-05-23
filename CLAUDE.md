@@ -46,7 +46,7 @@ finishing-branch                        test verify → PR → squash merge → 
 
 ## ドキュメント構造
 
-このリポ (および Base 派生プロジェクト) では、案件のドキュメントを2層で管理する。
+Base 派生プロジェクトでは、案件のドキュメントを2層で管理する。Base 本体は **これらの doc を持たない** — lazy 作成原則と、Template 継承時のノイズ回避のため。
 
 ### Tier 1 (常時メンテ — 全プロジェクトで意識)
 
@@ -83,6 +83,5 @@ finishing-branch                        test verify → PR → squash merge → 
 
 ## 参照
 
-- [CONTEXT.md](./CONTEXT.md) — 用語集
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — 規約 (人間向け)
 - [README.md](./README.md) — Base とは何か、使い方
