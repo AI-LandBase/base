@@ -50,35 +50,38 @@ finishing-branch                        test verify → PR → squash merge → 
 | `commit` | 「コミットして」「commit」 |
 | `finishing-branch` | 「PR 出して」「マージ準備」「ブランチ閉じて」 |
 
-## ドキュメント構造
+## ドキュメント Catalog
 
-Base 派生プロジェクトでは、案件のドキュメントを2層で管理する。Base 本体は **これらの doc を持たない** — lazy 作成原則と、Template 継承時のノイズ回避のため。
+Base 派生プロジェクトでは、案件のドキュメントを **Catalog (辞書)** として管理する。階層 (常時/条件付き) は持たない — 会話中に signal が surface したら、AI agent は Catalog を辞書として引き、該当 doc の作成/更新を能動提案する。Base 本体は **これらの doc を持たない** (lazy 作成原則と Template 継承時のノイズ回避のため)。
 
-### Tier 1 (常時メンテ — 全プロジェクトで意識)
+| Doc | 主問い | 領域 | Signal シナリオ |
+|-----|-------|------|----------------|
+| `AUDIENCE.md` | 誰に向けた案件か | 横断 | ターゲット顧客・ユーザー像・読み手像を議論しているとき |
+| `STAKEHOLDERS.md` | 誰が関与・承認・意思決定するか | 横断 | 依頼主・承認者・関係チームの役割を整理しているとき |
+| `BRIEF.md` | 何の案件か (目的・スコープ・成功基準) | 横断 | kickoff、案件の目的・KPI・成功基準を言語化するとき |
+| `CONTEXT.md` | 何という概念を扱うか (ドメイン用語集) | 横断 | 新しい概念名が登場、既存用語の再定義、命名議論をしているとき |
+| `ARCHITECTURE.md` | 何で構成されているか (構造・モジュール・データフロー) | 開発 | 構造・コンポーネント関係・データフロー・拡張点・リファクタの話題 |
+| `API.md` | 何を公開するか (endpoint・契約) | 開発 | API endpoint・OpenAPI・公開契約の議論 |
+| `DATA.md` | 何のデータを扱うか (スキーマ・ETL) | リサーチ/開発 | データソース・スキーマ・ETL・集計の議論 |
+| `CONTENT.md` | 何のコンテンツを作るか | クリエイティブ | 記事・素材・編集ワークフローの議論 |
+| `DESIGN.md` | 何を見せるか (UI 構造・visual taste) | クリエイティブ | UI・コンポーネント・レイアウト・visual taste の議論 |
+| `docs/adr/` | なぜこの決定にしたか | 横断 | アーキ決定・採否判断・「なぜこっちにした」を残すべきとき (hard-to-reverse / surprising / real-trade-off の 3 条件) |
+| `RESEARCH.md` | なぜそう判断できるか (リサーチ結果・根拠) | リサーチ | ユーザーリサーチ・インタビュー結果・発見事項を残すとき |
+| `BRAND.md` | なぜこのトーンか | マーケ/クリエイティブ | ブランド・トーン・コピーライティング方針の議論 |
+| `LEGAL.md` | なぜこの制約があるか | 横断 | 契約・ライセンス・プライバシーポリシー・コンプライアンスの議論 |
+| `DEPLOYMENT.md` | いつどう出すか | 開発 | デプロイ・リリース・環境変数・インフラの議論 |
+| `SEO.md` | どこで見つけてもらうか | マーケ | 検索最適化方針・サイト構造の議論 |
+| `SECURITY.md` | どう守るか | 開発 | 認証・機密・脆弱性・コンプライアンスの議論 |
+| `ANALYTICS.md` | どう測るか | マーケ | KPI・計測設計・イベント命名・ダッシュボードの議論 |
+| `SALES.md` | どう売るか | 営業 | 提案書・価格・営業フローの議論 |
 
-| Doc | 役割 |
-|-----|------|
-| `ARCHITECTURE.md` | システム構造・モジュール関係・データフロー |
-| `CONTEXT.md` | ドメイン用語集 |
-| `docs/adr/` | 重要決定の記録 (lazy、3条件 hard-to-reverse / surprising / real-trade-off を満たすとき) |
+### 運用ルール
 
-### Tier 2 (条件付き — AI が signal で能動提案・lazy 作成)
-
-| Doc | 検出 signal | 適用案件 |
-|-----|------------|---------|
-| `DESIGN.md` | UI / コンポーネント / レイアウト / visual taste の話題 | UI を持つ案件 |
-| `BRAND.md` | ブランド / トーン / コンテンツ / コピーライティング の話題 | マーケ / コンテンツ案件 |
-| `DEPLOYMENT.md` | デプロイ / リリース / 環境変数 / インフラ の話題 | デプロイがトリビアでない案件 |
-| `DATA.md` | データソース / スキーマ / ETL / 集計 の話題 | データ案件 |
-| `SECURITY.md` | 認証 / 機密 / 脆弱性 / コンプライアンス の話題 | 機密データ扱う案件 |
-| `API.md` | API endpoint / 公開契約 / OpenAPI の話題 | API 公開案件 |
-
-### 命名規則とlazy 作成
-
-- **配置**: 大文字 + `.md` で **リポ root** に置く (matklad ARCHITECTURE.md convention に揃える)。案件特化 doc が肥大化したら `docs/` 配下への移動を検討
-- **lazy 作成**: 該当 signal を検出するまで作らない。空のplaceholder は置かない
-- **更新**: 関連話題が出るたび inline で更新する (まとめて後でやらない)
-- grill-with-docs / improve-architecture は ARCHITECTURE.md と CONTEXT.md を自動更新する
+- **配置**: 大文字 + `.md` で **リポ root** に置く (matklad ARCHITECTURE.md convention)。肥大化したら `docs/` 配下への移動を検討
+- **lazy 作成**: 該当 signal が出るまで作らない。空の placeholder は置かない
+- **inline 更新**: 関連話題が出るたびその場で更新する (まとめて後でやらない)
+- **自動更新 doc**: `ARCHITECTURE.md` と `CONTEXT.md` は grill-with-docs / improve-architecture が会話中に自動更新する
+- **新 doc の追加**: Catalog にない doc が必要になったら、まずこの表に行を追加する
 
 ## AI agent 行動規範
 
