@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-このリポジトリ (Base) で AI agent (Claude Code) が守るべき指針と、利用可能な workflow の索引。
+このリポジトリで AI agent (Claude Code) が守るべき指針と、利用可能な workflow の索引。
 
 ## 実装規律 (Implementation Discipline)
 
@@ -52,7 +52,7 @@ finishing-branch                        test verify → PR → squash merge → 
 
 ## ドキュメント Catalog
 
-Base 派生プロジェクトでは、案件のドキュメントを **Catalog (辞書)** として管理する。階層 (常時/条件付き) は持たない — 会話中に signal が surface したら、AI agent は Catalog を辞書として引き、該当 doc の作成/更新を能動提案する。Base 本体は **これらの doc を持たない** (lazy 作成原則と Template 継承時のノイズ回避のため)。
+案件のドキュメントは **Catalog (辞書)** として管理する。階層 (常時/条件付き) は持たず、会話中に signal が surface したら、AI agent は Catalog を辞書として引き、該当 doc の作成/更新を能動提案する。
 
 | Doc | 主問い | 領域 | Signal シナリオ |
 |-----|-------|------|----------------|
@@ -92,4 +92,4 @@ Base 派生プロジェクトでは、案件のドキュメントを **Catalog (
 ## 参照
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — 規約 (人間向け)
-- [README.md](./README.md) — Base とは何か、使い方
+- [README.md](./README.md) — このリポジトリの概要と使い方
