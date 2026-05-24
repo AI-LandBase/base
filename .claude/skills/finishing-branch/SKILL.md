@@ -79,12 +79,19 @@ PR 本文は **`.github/PULL_REQUEST_TEMPLATE.md` の構造を保ったまま** 
 - チェックリスト (Conventional Commits 準拠、AI footer 無し、等)
 - Closes #<Issue 番号>  ← branch 名から抽出 (`feature/42-...` → `Closes #42`)
 
-**PR title は squash merge 時にそのまま main の commit subject になる** ため、`(issue#<N>)` を必ず含める (CONTRIBUTING.md のコミット規約と一致させる):
+**PR title は squash merge 時にそのまま main の commit subject になる** ため、`(issue#<N>)` を必ず含める (CONTRIBUTING.md のコミット規約と一致させる)。
 
-```bash
-gh pr create \
-  --title "<type>(<scope>): <subject> (issue#<N>)" \
-  --body "$(cat <<'EOF'
+PR body は `--body-file` で一時ファイル経由で渡すのが安全 (シェルの quoting を介さない、triple backtick を含む code fence も壊れない)。
+
+**手順:**
+
+1. PR body を一時ファイルに書く (内容は下記の markdown テンプレを参照、`Write` ツールで直接書くか、好きな editor で)
+2. `gh pr create --title "..." --body-file /tmp/pr-body.md`
+3. `rm /tmp/pr-body.md`
+
+**PR body の markdown テンプレ (4-backtick fence で囲み、内側 triple backtick を壊さずに表示):**
+
+````md
 ## 概要
 
 <1-2文>
@@ -96,9 +103,9 @@ gh pr create \
 
 ## テスト方法
 
-\`\`\`bash
+```bash
 <実行コマンド>
-\`\`\`
+```
 
 ## チェックリスト
 
@@ -109,9 +116,20 @@ gh pr create \
 - [x] AI 生成メッセージを含まない
 
 Closes #<N>
-EOF
-)"
+````
+
+**コマンド例:**
+
+```bash
+gh pr create \
+  --title "<type>(<scope>): <subject> (issue#<N>)" \
+  --body-file /tmp/pr-body.md
+rm /tmp/pr-body.md
 ```
+
+**避けるべきパターン (過去のバグ事例):**
+
+`--body "$(cat <<'EOF' ... EOF)"` 形式で HEREDOC を使うと、内側に triple backtick を書きたいときに混乱しやすい。single-quoted HEREDOC なので backtick の escape は不要だが、誤って triple backtick の前に backslash を付けると、GitHub 側で literal backslash として描画され code fence が壊れる。`--body-file` 経由ならこの罠自体を回避できる。
 
 完了後、PR URL をユーザーに渡す。
 

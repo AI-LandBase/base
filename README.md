@@ -10,12 +10,19 @@
 
 ## 使い方
 
-GitHub の「Use this template」または gh CLI:
+[Use this template](https://github.com/zomians/base/generate) または gh CLI:
 
 ```bash
-gh repo create my-new-project --template <owner>/base --private --clone
+gh repo create my-new-project --template zomians/base --private --clone
 cd my-new-project
 ```
+
+### 最初の一歩
+
+1. `CLAUDE.md` に目を通す (AI agent への指針 / skill 索引)
+2. 最初のアイデアがあれば「設計を詰めたい」と Claude に話しかける
+   → `grill-with-docs` が起動し、CONTEXT.md / ADR を作りながら設計が固まる
+3. 固まったら「Issue 作って」で `issue-create` が起動 (工数見積込みの Issue が立つ)
 
 ## 入っているもの
 
@@ -26,7 +33,6 @@ cd my-new-project
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR テンプレ (squash 前提) |
 | `CLAUDE.md` | AI agent 向け指針 |
 | `CONTRIBUTING.md` | 規約・禁止事項 (人間向け) |
-| `CONTEXT.md` | 用語集 |
 
 ## 入っていないもの
 
@@ -38,9 +44,8 @@ cd my-new-project
 
 ## ドキュメント
 
-- [CLAUDE.md](./CLAUDE.md)
-- [CONTRIBUTING.md](./CONTRIBUTING.md)
-- [CONTEXT.md](./CONTEXT.md)
+- [CLAUDE.md](./CLAUDE.md) — AI agent 向け指針 (規律 / skill 索引 / フロー / ドキュメント構造)
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — 規約・禁止事項
 
 ## ライセンス
 

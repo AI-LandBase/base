@@ -1,10 +1,26 @@
 # CONTRIBUTING
 
-開発の原則と禁止事項。
-
-**実行手順は `.claude/skills/` に分離されている。** ここでは「何を守るか」「なぜそうするか」だけを記述する。
+このリポでの開発フロー (skill 索引)、原則、禁止事項。
 
 > 実装規律の4原則 (DRY / YAGNI / TDD / Frequent commits) は [CLAUDE.md](./CLAUDE.md) を参照。
+
+---
+
+## 実行手順 (workflow)
+
+具体的な手順は skill に集約されている。各 skill は自然文 (「設計を詰めたい」等) で自動発火し、`/skill-name` で明示起動もできる。
+
+| やりたいこと | skill |
+|------------|------|
+| 設計を詰める / 用語整理 | `grill-with-docs` |
+| Issue を作る (工数見積込み) | `issue-create` |
+| テスト駆動で実装 | `tdd` |
+| バグ調査 | `diagnose` |
+| 構造リファクタ | `improve-architecture` |
+| コミット | `commit` |
+| PR 出してマージしてブランチ削除 | `finishing-branch` |
+
+詳細は `.claude/skills/<name>/SKILL.md` を参照。
 
 ---
 
@@ -79,21 +95,3 @@
 ### 推測 commit / PR
 
 「動くはず」「テスト通るはず」での commit / PR は禁止。実行確認の上で進める。
-
----
-
-## 実行手順 (workflow)
-
-具体的な手順は skill に集約されている。
-
-| やりたいこと | skill |
-|------------|------|
-| Issue を作る (工数見積込み) | `issue-create` |
-| 設計を詰める / 用語整理 | `grill-with-docs` |
-| テスト駆動で実装 | `tdd` |
-| バグ調査 | `diagnose` |
-| 構造リファクタ | `improve-architecture` |
-| コミット | `commit` |
-| PR 出してマージしてブランチ削除 | `finishing-branch` |
-
-詳細は `.claude/skills/<name>/SKILL.md` を参照。
