@@ -21,7 +21,8 @@ grill-with-docs                         設計判断 / 新概念 / 構造影響
                                         CONTEXT/ARCHITECTURE/ADR を inline 更新
                                         → trivial fix なら skip 可
    ↓
-issue-create                            grill 結果を Issue テンプレに転記
+issue-create                            ISSUE_TEMPLATE 全項目を埋めて起票
+                                        (grill した場合はその結果を転記)
    ↓
 [ branch切る ]                          feature/<#>-<summary>
    ↓
