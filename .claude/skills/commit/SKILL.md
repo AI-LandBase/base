@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Stage and commit changes using Conventional Commits format (<type>(<scope>): <subject> (issue#<N>)), auto-extracting the issue number from the current branch name. Strips AI-generated footers like 🤖 Generated with Claude Code or Co-Authored-By: Claude. Use when user wants to commit changes. Also activate when user says 「コミット」「commit して」「変更を commit」「commit」.
+description: "Stage and commit changes using Conventional Commits format (<type>(<scope>): <subject> (issue#<N>)), auto-extracting the issue number from the current branch name. Strips AI-generated footers like 🤖 Generated with Claude Code or Co-Authored-By: Claude. Use when user wants to commit changes. Also activate when user says 「コミット」「commit して」「変更を commit」「commit」."
 ---
 
 # commit

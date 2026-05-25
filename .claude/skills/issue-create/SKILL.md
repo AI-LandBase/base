@@ -37,12 +37,14 @@ description: Create a new GitHub Issue using the project's feature template (con
 
 短い説明から、続くセクションを埋めるための context を作る。
 
-### 3. セクション別ヒアリング
+### 3. Draft を一気に組み立てる
 
-以下を **1 セクションずつ** 順に詰める。各セクションでユーザーの推奨回答を提示し、合意してから次へ。
+概要から AI が全セクションを埋めた draft 全文を **一度に** 提示する。セクション単位の往復はしない。
 
-| セクション | 聞くこと |
-|----------|---------|
+埋めるべき項目の参照リスト:
+
+| セクション | 内容 |
+|----------|------|
 | 背景・課題 | 現状の問題、なぜ必要か |
 | 目的・ゴール | 主目的、副次目標 |
 | 要件定義 (FR) | 機能要件 (箇条書き) |
@@ -55,7 +57,7 @@ description: Create a new GitHub Issue using the project's feature template (con
 | 関連資料 | 参考リンクなど (任意) |
 | 優先度・難易度・依存 | High/Medium/Low、依存 Issue |
 
-**段階的に詰める。** 全部を一度に聞かない。1 セクション提案 → 合意 → 次へ。
+**判断材料が足りないセクションがある場合は、issue-create を中断して grill-with-docs を提案する。** issue-create 内で長いヒアリングはしない (それは grill の責務)。grill で要件が固まってから issue-create に戻る。
 
 ### 4. 工数見積のガイド
 
